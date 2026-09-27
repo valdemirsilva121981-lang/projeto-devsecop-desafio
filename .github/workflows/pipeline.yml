@@ -47,7 +47,7 @@ jobs:
         with:
           path: "."
           fail-build: true
-          severity-cutoff: "medium"
+          severity-cutoff: "high"
 
       # Passo 6: Deploy automatizado para o GitHub Pages
       - name: 🌐 Configurar GitHub Pages
