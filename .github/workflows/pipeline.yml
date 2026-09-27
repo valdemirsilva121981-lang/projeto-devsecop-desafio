@@ -29,22 +29,27 @@ jobs:
           ls src/ || echo "Pasta src nao encontrada"
           echo "Build OK!"
 
+      # Passo 3: Secrets Scanning (Gitleaks)
       - name: 🔑 Secrets Scanning
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Passo 4: SAST com a Action Oficial do Semgrep
       - name: 🔍 SAST - Semgrep
-        run: |
-          python3 -m pip install --upgrade pip
-          pip install semgrep
-          semgrep scan --config auto --error src/
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: p/default
 
+      # Passo 5: SCA com a Action Oficial do Grype (Corrigido para evitar o erro 127)
       - name: 📦 SCA - Grype
-        run: |
-          curl -sSfL https://githubusercontent.com | sh -s -- -b /usr/local/bin
-          grype dir:. --fail-on medium
+        uses: anchore/scan-action@v3
+        with:
+          path: "."
+          fail-build: true
+          severity-cutoff: "medium"
 
+      # Passo 6: Deploy automatizado para o GitHub Pages
       - name: 🌐 Configurar GitHub Pages
         uses: actions/configure-pages@v4
 
