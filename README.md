@@ -24,6 +24,7 @@ A pipeline está **incompleta**. Os steps de segurança precisam ser implementad
 ## Como a pipeline funciona
 > **Substitua este bloco pela sua explicação após implementar a pipeline.**
 > Descreva cada step, o que ele faz e por que ele é importante para a segurança.
+> 
 
 ## URL de Produção
 > Adicione aqui o link do GitHub Pages após o deploy.
