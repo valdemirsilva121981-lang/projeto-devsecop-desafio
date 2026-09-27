@@ -1,0 +1,58 @@
+name: 🔐 Pipeline DevSecOps
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  pipeline:
+    name: Build, Segurança e Deploy
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: 📥 Checkout do Código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ⚙️ Build
+        run: |
+          echo "Verificando arquivos..."
+          ls src/ || echo "Pasta src nao encontrada"
+          echo "Build OK!"
+
+      - name: 🔑 Secrets Scanning
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔍 SAST - Semgrep
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install semgrep
+          semgrep scan --config auto --error src/
+
+      - name: 📦 SCA - Grype
+        run: |
+          curl -sSfL https://githubusercontent.com | sh -s -- -b /usr/local/bin
+          grype dir:. --fail-on medium
+
+      - name: 🌐 Configurar GitHub Pages
+        uses: actions/configure-pages@v4
+
+      - name: 📤 Upload para Produção
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './src'
+
+      - name: 🚀 Deploy em Produção
+        id: deployment
+        uses: actions/deploy-pages@v4
